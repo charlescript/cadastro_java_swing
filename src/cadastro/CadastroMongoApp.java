@@ -557,8 +557,78 @@ public class CadastroMongoApp extends JFrame {
 	}
 	
 	
+	/*Declaração do método salvarRegistro() com escopo private.
+	 * Esse método é chamado quando o botão "Salvar" é clicado e tem como objetivo capturar os dados do formulário, validar e inseri-los 
+	 * no banco de dados MongoDB.*/
 	private void salvarRegistro() {
-		txtNome.setText("");
+		
+		/* Recupera o texto digitado o campo txtNome.
+		 * O método getText() obtém o conteúdo do campo texto.
+		 * O método trim() remove espaços em branco no início e no final da string,
+		 * garantindo que nomes como "João" sejam tratados corretamente como "João"*/
+		String nome = txtNome.getText().trim();
+		
+		/*Recupera o texto digitado no campo txtEmail, aplicando trim() da mesma forma.*/
+		String email = txtEmail.getText().trim();
+		
+		/*Recupera o texto digitado no campo txtTelefone, aplicando o trim()*/
+		String tel = txtTelefone.getText().trim();
+		
+		/* Recupera o texto txtDataNascimento, aplicando o trim()*/
+		String data = txtDataNascimento.getText().trim();
+		
+		
+		/*Verifica se os campos "nome" ou "email" estão vazios.
+		 * O método isEmpty() retorna true se a string estiver vazia("").
+		 * Como o nome e e-mail são considerados obrigatórios, essa validação impede que um registro sem essas infromações
+		 * seja salvo no banco de dados.*/
+		if (nome.isEmpty() || email.isEmpty()) {
+			
+			/*Exibe uma caixa de diálogo com uma mensagem de aviso.
+			 * JOptionPane é uma classe utilitária do Swing que exibe janelas de mensagem.
+			 * showMessageDialog(...) exibe um alerta com título conteúdo e ícone de tipo.
+			 * Neste caso, o ícone WARNING_MESSAGE indica que é um aviso.*/
+			JOptionPane.showMessageDialog(this, "Nome e E-Mail são obrigatórios!",  /*Mensagem de erro exibida ao usuário*/
+												"Aviso", 						/*Título da caixa de diálogo*/
+												JOptionPane.WARNING_MESSAGE);   /*Tipo do ícone: aviso (ícone amarelo com ponto de exclamação). */
+			
+			/* return encerra a execução do método, impedindo 
+			 * que o registro seja salvo com campos inválidos*/ 
+			return;
+		}
+		
+		
+		/* Cria um novo objeto do tipo Document, que representa um documento no formato BSON (estrutura interna do MongoDB).
+		 * Esse objeto será inserido diretamente na coleção do MongoDB com um novo registro.
+		 * O primerio par chave-valor inserido é: "nome" -> nome (conteúdo digitado no campo txtNome).*/
+		Document doc = new Document("nome", nome )
+												.append("email", email)  /* Adiciona ao documento o par "email" -> email. O método append adiciona uma nova chave e seu valor ao Document de forma encadeada.*/
+												.append("telefone", tel) /* Adiciona ao documento o par "telefone" -> tel*/
+												.append("dataNascimento", data); /* Adiciona ao documento o par "DataNascimento" -> data*/
+		
+		/*Insere o documento recém-criado na coleção MongoDB chamada coleção
+		 * O método insertOne(Document) realiza a operação de inserção no banco.
+		 * Após essa linha, o documento estará persistido na base de dados (em disco ou memória, dependendo da configuração).*/
+		colecao.insertOne(doc);
+		
+		/*Exibe uma caixa de diálogo informando ao usuário que o registro foi inserido com sucesso.
+		 * JOptionPane.showMessageDialog é usado para exibir mensagens com interface gráfica ao usuário.*/
+		
+		JOptionPane.showMessageDialog(this, /* O parâmetro this faz com que a mensagem seja exibida sobre a janela atual da aplicação. */
+									  "Registro inserido com sucesso!", /* A string "Registro inserid ocom sucesso!" é o conteúdo da mensagem*/
+									  "Sucesso",		/*É o titulo da caixa de diálogo.*/
+									  JOptionPane.INFORMATION_MESSAGE); /*Define o ícone azul de informação (ícone de sucesso) */
+		
+		
+		/* Chama o método limpar Campos(), que limpa os campos do formulário (nome, email, telefone e data).
+		 * Isso prepara a tela para um novo cadastro, deixando os campos em branco.*/
+		limparCampos();
+		
+		/*Chama o método carregarRegistros("") passando uma string vazia como parâmetro. 
+		 * Isso faz com que todos os registros do banco de dados sejam carregados e exibidos na tabela novamente,
+		 * incluindo o novo registro que acabou de ser inserido.*/
+		carregarRegistros("");
+		
 	}
 	
 	

@@ -719,8 +719,62 @@ public class CadastroMongoApp extends JFrame {
 	
 	
 	private void atualizarRegistro() {
-		txtNome.setText("");
-	}
+		
+		int linha = tabela.getSelectedRow();
+		
+		if(linha < 0) {
+			
+			JOptionPane.showInternalMessageDialog(this, 
+					"Selecione um registro na tabela para atualizar,",
+					"Aviso", 
+					JOptionPane.WARNING_MESSAGE);
+			
+			return;	
+		}
+		
+		
+		String idStr = (String) modeloTabela.getValueAt(linha, 0);
+		
+		String nome = txtNome.getText().trim();
+		String email = txtEmail.getText().trim();
+		String tel = txtTelefone.getText().trim();
+		String data = txtDataNascimento.getText().trim();
+		
+		if (nome.isEmpty() || email.isEmpty()) {
+			
+			JOptionPane.showInternalMessageDialog(this,
+					"Nome e E-mail são obrigatórios",
+					"Aviso",
+					JOptionPane.WARNING_MESSAGE);
+			
+			return;
+		}
+		
+		Document novosValores = new Document()
+											  .append("nome", nome)
+											  .append("email", email)
+											  .append("telefone", tel)
+											  .append("dataNascimento", data);
+		
+		Object objId = new ObjectId(idStr);
+		
+		Document filtro = new Document("_id", objId);
+		
+		Document atualizacao = new Document("$set", novosValores);
+		
+		colecao.updateOne(filtro, atualizacao);
+		
+		
+		JOptionPane.showInternalMessageDialog(this,
+				"Registro atualizado com sucesso!",
+				"Sucesso",
+				JOptionPane.INFORMATION_MESSAGE);
+		
+		carregarRegistros("");
+		
+	} /*Fim método atualizarRegistro*/
+	
+	
 	
 	
 	private void excluirRegistro() {

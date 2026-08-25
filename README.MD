@@ -8,12 +8,12 @@ Aplicação Desktop desenvolvida em Java utilizando a biblioteca gráfica Swing 
 
 <div align="center">
   <a href="https://drive.google.com/file/d/1Pup7cjcaizBBFlF1RE8937AMOAZDLfT1/view?usp=sharing" target="_blank">
-    <img src="https://img.shields.io/badge/▶️_Assistir_Vídeo_de_Demonstração_no_Google_Drive-000000?style=for-the-badge&logo=googledrive&logoColor=white" alt="Assista ao vídeo no Google Drive" />
+    <img src="https://img.shields.io/badge/▶️_Assistir_Vídeo_de_Demonstração_no_Google_Drive-000000?style=for-the-badge&logo=googledrive&logoColor=white" target="_blank" alt="Assista ao vídeo no Google Drive" />
   </a>
 
   <br/><br/>
   
-  > 💡 <i>Clique no botão acima para assistir à demonstração completa do sistema no Google Drive.</i>
+  💡 <i><h2>Clique no botão acima para assistir à demonstração completa do sistema no Google Drive.</h2></i>
 </div>
 ---
 

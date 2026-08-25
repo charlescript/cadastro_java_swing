@@ -7,11 +7,14 @@ Aplicação Desktop desenvolvida em Java utilizando a biblioteca gráfica Swing 
 ## 🎥 Demonstração do Funcionamento
 
 <div align="center">
-  <video src="https://drive.google.com/file/d/1Pup7cjcaizBBFlF1RE8937AMOAZDLfT1/view?usp=sharing" width="100%" controls>
-    Seu navegador não suporta a exibição de vídeos.
-  </video>
-</div>
+  <a href="https://drive.google.com/file/d/1Pup7cjcaizBBFlF1RE8937AMOAZDLfT1/view?usp=sharing" target="_blank">
+    <img src="https://img.shields.io/badge/▶️_Assistir_Vídeo_de_Demonstração_no_Google_Drive-000000?style=for-the-badge&logo=googledrive&logoColor=white" alt="Assista ao vídeo no Google Drive" />
+  </a>
 
+  <br/><br/>
+  
+  > 💡 <i>Clique no botão acima para assistir à demonstração completa do sistema no Google Drive.</i>
+</div>
 ---
 
 ## 🚀 Funcionalidades

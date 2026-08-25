@@ -835,10 +835,95 @@ public class CadastroMongoApp extends JFrame {
 	
 	
 	
-	
+	/* Declaração do método excluirRegistro() com escopo private.
+	 * Esse método é acionado quando o botão "Excluir" é clicado,
+	 * e tem como objetivo remover um documento selecionado da coleção MongoDB.*/
 	private void excluirRegistro() {
-		txtNome.setText("");
-	}
+		
+		/* Obtém o índice da linha atualmente selecionada na tabela (JTable).
+		 * O método getSelectedRow() retorna a posição da linha selecionada. 
+		 * Se nenhuma linha estiver selecionada, o valor retornado será -1. */
+		int linha = tabela.getSelectedRow();
+		
+		
+		/* Verifica se nenhuma linha foi selecionada.
+		 * A verificação é feita comparando se o valor de linha é menor que 0.
+		 * Isso previne que uma exclusão ocorra sem um registro válido selecionado. */
+		if (linha < 0) {
+			
+			/* Exibe uma mensagem de aviso para o usuário informando 
+			 * que é necessário selecionar um registro antes de tentar excluir.*/
+			 JOptionPane.showMessageDialog(this,       // Indica que o JFrame atual será o "pai" da caixa de diálogo
+					 "Selecione um registro na tabela para excluir!",  // -> "Selecione um registro...": Mensagem mostrada ao usuário. 
+					 "Atenção",						 // Título da janela de mensagem.
+					 JOptionPane.WARNING_MESSAGE);   // WARNING_MESSAGE: Define o ícone como um ponto de exclamação (ícone de alerta).
+			 
+			 /* Interrompe a execução do método caso nenhuma linha esteja selecionada
+			  *  Isso impede que as próximas etapas (como excluir do banco)
+			  *   sejam executadas sem um alvo definido. */
+			 return;
+		}
+		
+		
+		/* Recupera o valor da primeira coluna (índice 0) da linha selecionada na tabela.
+		 * Essa coluna contém o "_id" do documento, que é o identificador único gerado pelo MongoDB.
+		 * O valor retornado é convertido para String, pois é armazenado no modelo da tabela como texto. */
+		String idStr = (String) modeloTabela.getValueAt(linha, 0);
+		
+		
+		/* Exibe uma caixa de diálogo perguntando ao usuário se ele realmente  deseja excluir o registro. 
+		 * JOptionPane.showConfirmDialog mostra uma caixa com botões de confirmação (Sim e Não).*/
+		int confirm = JOptionPane.showConfirmDialog(this,  /* Janela pai da caixa de diálogo (neste caso, o JFrame atual).*/
+				"Tem certeza que deseja excluir este registro?",  /*Mensagem principal exibida na caixa*/
+				"Confirmar Exclusão",     /* Título da caixa de diálogo*/
+				JOptionPane.YES_NO_OPTION);   /*Define os botões como "Sim" e "Não"*/
+		
+		
+		/* Verifica se o usuário *NÃO clicou em "SIM".
+		 * JOptionPane.YES_OPTION é uma constante que representa o clique no botão "SIM"
+		 *  Se o valor de "confirm" for diferente de YES_OPTION, significa que o usuário clicou em "Não" ou fechou a janela.
+		 *  Nesse caso, o método é encerrado com return, cancelando o processo de exclusão. */
+		if (confirm != JOptionPane.YES_OPTION) {
+			return;
+		}
+		
+		
+		/* Coverte a string idStr, obtida anteriormente da tabela, para um objeto ObjectId.
+		 * O ObjectId é o tipo específico de identificador utilizado pelo MongoDB para o campo "_id". 
+		 * Essa conversão é necessário porque a operação de exclusão exige que o filtro use um ObjectId válido*/
+		ObjectId objId = new ObjectId(idStr);
+		
+		
+		/* Cria um novo documento MongoDB chamado filtro. *Esse filtro será usado como critério 
+		 * de busca para localizar exatamente o documento a ser excluído.
+		 * Ele busca por um documento cujo campo "_id" seja igual ao objId criado acima. */
+		Document filtro = new Document("_id", objId);
+		
+		
+		/* Executa a operação de exclusão no banco de dados MongoDB.
+		 * O método deteOne remove o primeiro documento que corresponde ao filtro especificado.
+		 * Neste caso, como "_id", é único haverá no máximo um documento afetado.
+		 * Essa é a linha que efetivamente remove o registro da base de dados. */
+		colecao.deleteOne(filtro);
+		
+		
+		/* Exibe uma caixa de diálogo informando que o registro foi excluído com sucesso.
+		 * Isso fornece um feedback visual ao usuário de que a ação foi realizada corretamente.*/
+		JOptionPane.showMessageDialog(this,  // Componente pai (a janela atual)
+				"Registro excluído com sucesso!",   // Mensagem a ser exibida.
+				"Sucesso",						// Título da caixa diálogo.
+				JOptionPane.INFORMATION_MESSAGE ); // Ícone de informação (azul com 'i').
+		
+		
+		/* Recarrega todos os registros da base de dados para atualizar a tabela exibida na interface.
+		 * O parâmetro "" (string vazia) indica que a busca será 
+		 * feita sem filtro, ou seja, todos os registros serão listados. */
+		carregarRegistros("");
+		
+		/*Limpar os campos de txt, após a exclusão e carregamento de registros.*/
+		limparCampos();
+		
+	} /* Fim do método excluirRegistro()*/
 	
 	
 	private void exportarDadosExcel() {

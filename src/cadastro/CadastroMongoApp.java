@@ -552,11 +552,94 @@ public class CadastroMongoApp extends JFrame {
 	
 	
 	
+	/* Declaração do método carregarRegistros, que recebe como parâmetro uma String chamada filtro.
+	 * Esse método é responsável por buscar registros no MongoDB 
+	 * com base no filtro fornecido, e exibi-los na tabela (JTable) da interface*/
 	private void carregarRegistros(String filtro) {
 		
+		/* modeloTabela é o modelo de dados associado à JTable.
+		 * O método setRowCount(0) limpa todas as linhas da tabela, ou seja, remove os dados existentes.
+		 * Isso é importante para garantir que os novos registros não sejam adicionados por cima dos antigos, 
+		 * evitando duplicação ao recarregar os dados.*/
 		modeloTabela.setRowCount(0);
 		
-	}
+		
+		/* Cria uma lista chamada resultados para armazenar os documentos (registros) retornados do banco de dados.
+		 * A lista é do tipo Document, que representa cada documento do MongoDB.
+		 * Será preenchida com os documentos encontrados na coleção conforme o filtro. */
+		List<Document> resultados = new ArrayList<>();
+		
+		
+		/* Verifica se o filtro passado como parâmetro está vazio.
+		 * Se estiver vazio, significa que o usuário não digitou nenhum termo de busca, então
+		 * todos os registros da coleção devem ser carregados.*/
+		if (filtro.isEmpty()) {
+			
+			/*Recupera todos os documentos da coleção (MongoCollection).
+			 * O método find() sem parâmetros retorna todos os registros.
+			 * O métodointo(resultados) armazena os resultados diretamente na lista criada anteriormente.*/
+			colecao.find().into(resultados);
+		
+		} else {
+			
+			/* Caso o filtro não esteja vazio, cria-se uma condição de busca usando operadores do MongoDB 
+			 * Cria uma novo objeto Document chamado cond, que representa a condição de filtro.
+			 * A chave "$or" indica que queremos buscar registros onde **pelo menos uma** das condições seja verdadeira*/
+			Document cond = new Document("$or", List.of(
+					
+					/* Primeira condição: busca documentos cujo campo "nome" contenha o valor do filtro. 
+					 * "$regex" indica uma expressão regular (busca parcial, não exata). 
+					 * $options* com valor "i" define que a busca será **case-insensitive** (ignora maiúsculas e minúsculas). */
+					new Document("nome", new Document("$regex", filtro).append("$options", "i")),
+					
+					
+					/* Segunda condição: busca documentos cujo campo "email" contenha o valor do filtro,
+					 * também de forma parcial e sem considerar maiúsculas/minúsculas */
+					new Document("email", new Document("$regex", filtro).append("$options", "i"))
+			));
+			
+			
+			/* Executa a busca na coleção com base na codição construída.
+			 * O método find(cond) retorna todos os documentos que correspondem ao filtro.
+			 * Os resultados são armazenados na lista resultados. */
+			colecao.find(cond).into(resultados);
+		}
+		
+		
+		/* Inicia um loop for-each que percorre todos os documentos retornados na lista resultados.
+		 * Cada item da lista é um objeto do tipo Document, que representa um registro da coleção MongoDB.
+		 * A variável d é usada como referência para o documento atual dentro do laço.*/
+		for (Document d : resultados) {
+			
+			/* Recupera o valor do campo "_id" do documento atual.
+			 * O método getObjectId("_id") retorna o identificador único do MongoDB no formato ObjectID.
+			 * Esse campo é gerado automaticamente pelo MongoDB no momento da inserção do documento.*/
+			Object idObj = d.getObjectId("_id");
+			
+			/* Recupera o valor do campo "nome" do documento atual.
+			 * O método getString("nome") retorna o valor armazenado no campo "nome"
+			 * no formato String.*/
+			String nome = d.getString("nome");
+			
+			/*Recupera o valor do campo "email" do documento atual*/
+			String email = d.getString("email");
+			
+			/*Recupera o valor do campo "telefone" do documento atual*/
+			String tel = d.getString("telefone");
+			
+			/*Recupera o valor do campo "dataNascimento" do documento atual*/
+			String data = d.getString("dataNascimento");
+			
+			/* Adiciona uma nova linha na tabela (modeloTabela) com os dados extraídos do documento.
+			 * A linha é criada como um array de objetos contendo os seguintes dados, na ordem:
+			 *  -idObj.toString(): converte o ObjectId para String (essa coluna está oculta na interface). 
+			 *  - nome, email, tel, data: dados visíveis que serão exibidos nas colunas da JTable. */
+			modeloTabela.addRow(new Object[] { idObj.toString(), nome, email, tel, data });
+		}
+		
+	} /* Fim do método -> CarregarRegistros()*/
+	
+	
 	
 	
 	/*Declaração do método salvarRegistro() com escopo private.
@@ -613,9 +696,9 @@ public class CadastroMongoApp extends JFrame {
 		 * Após essa linha, o documento estará persistido na base de dados (em disco ou memória, dependendo da configuração).*/
 		colecao.insertOne(doc);
 		
+		
 		/*Exibe uma caixa de diálogo informando ao usuário que o registro foi inserido com sucesso.
 		 * JOptionPane.showMessageDialog é usado para exibir mensagens com interface gráfica ao usuário.*/
-		
 		JOptionPane.showMessageDialog(this, /* O parâmetro this faz com que a mensagem seja exibida sobre a janela atual da aplicação. */
 									  "Registro inserido com sucesso!", /* A string "Registro inserid ocom sucesso!" é o conteúdo da mensagem*/
 									  "Sucesso",		/*É o titulo da caixa de diálogo.*/
@@ -631,7 +714,8 @@ public class CadastroMongoApp extends JFrame {
 		 * incluindo o novo registro que acabou de ser inserido.*/
 		carregarRegistros("");
 		
-	}
+	} /* Fim método salvarRegistro() */
+	
 	
 	
 	private void atualizarRegistro() {
@@ -662,15 +746,19 @@ public class CadastroMongoApp extends JFrame {
 	private void conectarMongo() {
 		
 		/* Cria uma instância do cliente MongoDB utilizando a URI padrão para conexão local.
-		 *  "mongoDB://localhost:27017" indica que o servidor mongoDB está rodando localmente na porta padrão 27017, sem autenticação ou paramêtros adicionais.
+		 *  "mongoDB://localhost:27017" indica que o servidor mongoDB está rodando localmente na porta padrão 27017, 
+		 *  sem autenticação ou paramêtros adicionais.
 		 *  
-		 *  MongoClients.create(...) é um método estático que retorna uma implementação de MongoClient, permitindo iniciar a comunicação com o servidor MongoDB. */
+		 *  MongoClients.create(...) é um método estático que retorna uma implementação de MongoClient, 
+		 *  permitindo iniciar a comunicação com o servidor MongoDB. */
 		mongoClient = MongoClients.create("mongodb://localhost:27017");
 		
 		
 		/* Seleciona (ou cria, se ainda não existir) o banco de dados chamado "cadastro".
-		 *  O método `getDatabase(String nome)` retorna uma instância de `MongoDatabase`, que permite executar operações como criar coleções, consultar documentos, etc.
-		 *  No MongoDB, o banco de dados é criado "sob demanda" - ou seja, ele só será criado de fato quando um documento for inserido dentro de alguma coleção.  */
+		 *  O método `getDatabase(String nome)` retorna uma instância de `MongoDatabase`, que permite executar operações 
+		 *  como criar coleções, consultar documentos, etc.
+		 *  No MongoDB, o banco de dados é criado "sob demanda" - ou seja, ele só será criado de fato
+		 *  quando um documento for inserido dentro de alguma coleção.  */
 		database = mongoClient.getDatabase("cadastro");
 		
 		

@@ -926,9 +926,97 @@ public class CadastroMongoApp extends JFrame {
 	} /* Fim do método excluirRegistro()*/
 	
 	
+	
+	/* Declaração do método exportarDadosExcel() com escopo private.
+	 * Este método é responsável por exportar os dados exibidos na tabela da interface gráfica para um arquivo 
+	 * no formato CSV (valores separados por ponto e vírgula), que pode ser aberto no Excel.*/
 	private void exportarDadosExcel() {
-		txtNome.setText("");
-	}
+		
+		/*Cria um objeto JFileChooser, que é um componente gráfico
+		 * Swing usado para abrir caixas de diálogo de seleção de arquivos e diretórios.
+		 * Neste caso, será usado para permitir ao usuário escolher onde salvar o arquivo CSV.*/
+		JFileChooser fileChooser = new JFileChooser();
+		
+		
+		/* Define o título da janela de diálogo que será exibida ao usuário
+		 * Isso ajuda a indicar claramente que o objetivo da caixa é salvar um arquivo CSV*/
+		fileChooser.setDialogTitle("Salvar arquivo CSV");
+		
+		
+		/* Exibe a caix de diálogo para o usuário escolher onde salvar o arquivo.
+		 * O método showSaveDialog(this) exibe a caixa de diálogo de "Salvar como".
+		 * O parâmetro `this` indica que a janela principal será usada como pai da caixa
+		 * O método retorna um inteiro que representa a ação do usuário: se ele confirmou (OK) */
+		int userSelection = fileChooser.showSaveDialog(this);
+		
+		/* Verifica se o usuário clicou no botão "Salvar" (OK).
+		 * JFileChooser.APPROVE_OPTIONN é uma constante que indica
+		 * que o usuário confirmou a ação.*/
+		if(userSelection == JFileChooser.APPROVE_OPTION) {
+			
+			
+			/*Obtém o arquivo selecionado pelo usuário na caixa de diálogo
+			 *  Este é o local e nome do arquivo que será salvo no disco*/
+			File fileToSave = fileChooser.getSelectedFile();
+			
+			
+			/* Verifica se o nome do arquivo termina com ".csv" (independente de letras maiúsculas/minusculas).
+			 * Caso contrário, adiciona automaticamente a extensão ".csv" ao final do nome.
+			 * Isso garante que o arquivo salvo tenha o formato esperado para ser aberto no Excel*/
+			if(!fileToSave.getName().toLowerCase().endsWith(".csv")){
+				fileToSave = new File(fileToSave.getAbsolutePath()+ ".csv");
+			}
+			
+			
+			/*Inicia um bloco try-with-resources que cria um PrintWriter para escrever no arquivo selecionado.
+			 * PrintWriter é uma classe utilizada para escrever texto em arquivos de forma simples
+			 * O recurso (pw) será automaticamente fechado ao final do bloco, mesmo que ocorra uma exceção.
+			 * Isso garante o fechamento correto do arquivo, evitando vazamento de recursos*/
+			try(PrintWriter pw = new PrintWriter(fileToSave)) {
+				
+				for (int col = 0; col < modeloTabela.getColumnCount(); col++) {
+					
+					pw.print(modeloTabela.getColumnName(col));
+					
+					if(col < modeloTabela.getColumnCount() -1) {
+						
+						pw.print(";");
+						
+					}
+					
+				}
+				
+				pw.println();
+				
+				for( int row = 0; row < modeloTabela.getRowCount(); row ++ ) {
+					
+					for ( int col = 0; col < modeloTabela.getColumnCount(); col++ ) {
+						
+						pw.print(modeloTabela.getValueAt(row, col));
+						
+						if(col < modeloTabela.getColumnCount() - 1) {
+							pw.print(";");
+						}
+					}
+					
+					pw.println();
+				}
+				
+				JOptionPane.showMessageDialog(this, 
+												"Dados exportados com sucesso!",
+												"Sucesso",
+												JOptionPane.INFORMATION_MESSAGE);
+				
+			} catch(Exception ex) {
+				
+				JOptionPane.showMessageDialog(this, 
+												"Erro ao exportar os dados: " + ex.getMessage(),
+												"Erro",
+												JOptionPane.ERROR_MESSAGE);
+			} // FIM try
+		}
+		
+	} /* Fim do método exportarDadosExcel() */
 	
 	
 	private void limparCampos() {

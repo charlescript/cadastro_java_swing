@@ -717,60 +717,119 @@ public class CadastroMongoApp extends JFrame {
 	} /* Fim método salvarRegistro() */
 	
 	
-	
+	/* Declaração do método atualizarRegistro() com escopo private.
+	 * Este método é chamado quando o botão "Atualizar" é clicado e tem como objetivo modificar os dados de um registro
+	 * existente selecionado na tabela, atualizando-o na base de dados MongoDB.*/
 	private void atualizarRegistro() {
 		
+		/* Obtém o índice da linha atualmente selecionada na JTable.
+		 * O método getSelectedRow() retorna o número da linha selecionada (começando em 0).
+		 * Se nenhuma linha estiver selecionada, o método retorna -1.*/
 		int linha = tabela.getSelectedRow();
 		
+		/* Verifica se o valor retornado é menor que 0, ou seja, se nenhuma linha foi selecionada pelo usuário.*/
 		if(linha < 0) {
 			
-			JOptionPane.showInternalMessageDialog(this, 
-					"Selecione um registro na tabela para atualizar,",
-					"Aviso", 
-					JOptionPane.WARNING_MESSAGE);
+			/* Se nenhuma linha foi selecionada, exibe uma mensagem de aviso ao usuário.
+			 * JOptionPane.showMessaDialog exibe uma caixa de diálogo. */
+			JOptionPane.showMessageDialog(this,  /*Parametro this: Indica que a janela atual será o "pai" da caixa de diálogo */
+					"Selecione um registro na tabela para atualizar,", /*"Selecione um registro...": é o texto da mesagem a ser exibida*/
+					"Aviso",  /*Titulo da caixa de diálogo */
+					JOptionPane.WARNING_MESSAGE); /*ícone de aviso (ícone amarelo) */
 			
+			/* O comando return encerra imediatamente a execução do método.
+			 * Isso impede que o código abaixo seja executado quando não houver linha selecionada, evitando erros 
+			 * ou comportamentos inesperados. */
 			return;	
 		}
 		
 		
+		/* Obtém o identificador único (_id) do registro selecionado na tabela.
+		 *  modeloTabela é o modelo de dados associado à JTable.
+		 * O método getValueAt(linha,0) retorna o valor da célula na linha selecionada e na primeira coluna
+		 * (índice 0), que corresponde ao campo "_id" do documento no MongoDB.
+		 * Esse valor é armazenado como uma String na variável idStr*/
 		String idStr = (String) modeloTabela.getValueAt(linha, 0);
 		
+		/* Recupera o texto inserido no campo txtNome, que corresponde ao nome do contato.
+		 * O método getText() obtém o conteúdo atual do JTextField.
+		 * O método trim() remove quaisquer espaços em branco no início e no final da string, 
+		 * garantindo que não haja espaços extras que possam interferir na validação ou no armazenamento dos dados.*/
 		String nome = txtNome.getText().trim();
+		
+		/* Recupera o texto inserido no campo txtEmail, que corresponde ao e-mail do contato.
+		 * Aplica-se o mesmo processo: getText() para obter o conteúdo e trim() para limpar espaços em branco desnecessários.*/
 		String email = txtEmail.getText().trim();
+		
+		
+		/*Recupera o texto inserido no campo txtTelefone, que corresponde ao telefone do contato.
+		 * Novamente, utiliza-se getText() e trim() para obter e limpar o conteúdo do campo.*/
 		String tel = txtTelefone.getText().trim();
+		
+		/* Recupera o texto inserido no campo txtDataNascimento, que corresponde à data de nascimento do contato.
+		 * O mesmo processo é aplciado: getText() para obter o conteúdo e trim() para remover espaços extras.*/
 		String data = txtDataNascimento.getText().trim();
 		
+		
+		/* Verifica se os campos "nome" ou "email" estão vazios, pois são considerados obrigatórios para a atualização do registro.
+		 * O método isEmpty() verifica se a string está vazia após a remoção dos espaços em branco
+		 * Se qualquer um dos campos estiver vazio, exibe-se uma mensagem de aviso ao usuário e interrompe-se o processo de atualização. */
 		if (nome.isEmpty() || email.isEmpty()) {
 			
-			JOptionPane.showInternalMessageDialog(this,
+			JOptionPane.showMessageDialog(this,
 					"Nome e E-mail são obrigatórios",
 					"Aviso",
 					JOptionPane.WARNING_MESSAGE);
 			
-			return;
+			return; /*Interrompe a execução do método, pois não é possível prosseguir com a atualização sem esses campos.*/
 		}
 		
+		
+		/* Cria um novo objeto do tipo Document chamado novosValores.
+		 * Este documento irá conter os novos dados que serão usados para atualizar o registro no banco de dados.
+		 * A seguir, os campos "nome", "email", "telefone", e "dataNascimento" são adicionados
+		 *  a este documento, com os respectivos valores informados nos campos de texto do formulário.*/
 		Document novosValores = new Document()
 											  .append("nome", nome)
 											  .append("email", email)
 											  .append("telefone", tel)
 											  .append("dataNascimento", data);
 		
+		/*Converte a String idStr, obtida anteriormente da tabela, para um objeto ObjectId.
+		 * O ObjectId é o tipo de dado utilizado internamente pelo MongoDB para representar o campo "_id".
+		 * A conversão é necessária para que possamos localizar corretamente o documento original no banco.*/
 		Object objId = new ObjectId(idStr);
 		
+		/* Cria um novo Document chamado filtro, que será usado como critério de busca para localizar o registro a ser atualizado.
+		 * O filtro busca pelo campo "_id" com o valor igual ao objId convertido.*/
 		Document filtro = new Document("_id", objId);
 		
+		/* Cria um novo Document chamado atualizacao, que contém a instrução de atualização.
+		 * A chave "$set" é uma operação do MongoDB que substitui os valores de campos específicos de um documento.
+		 * O valor associado a "$set" é o documento novosValores, ou seja, os novos dados que serão aplicados ao registro*/
 		Document atualizacao = new Document("$set", novosValores);
 		
+		
+		/* Executa a operação de atualização o MongoDB.
+		 * O método updateOne aplica a modificação ao primeiro documento que casar com o filtro informado.
+		 * Parâmetros: 
+		 *   - filtro: define qual documento será atualizado (baseado no _id).
+		 *   - atualizacao: define quais campos serão modificados e seus novos valores.*/
 		colecao.updateOne(filtro, atualizacao);
 		
 		
-		JOptionPane.showInternalMessageDialog(this,
-				"Registro atualizado com sucesso!",
-				"Sucesso",
-				JOptionPane.INFORMATION_MESSAGE);
+		/* Exibe uma caixa de diálogo para informar que o registro foi atualizado com sucesso.
+		 * Isso fornece feedback ao usuário de que a ação foi concluída corretamente. */
+		JOptionPane.showMessageDialog(this,
+				"Registro atualizado com sucesso!",  // Mensagem a ser exibida
+				"Sucesso",							// Título da caixa de diálogo.
+				JOptionPane.INFORMATION_MESSAGE);   // Ícone azul de sucesso.
 		
+		
+		/* Atualiza a tabela da interface gráfica para refletir os dados atualizados.
+		 * O método carregarRegistros("") com string vazia recarrega todos os registros sem aplicar filtro*/
 		carregarRegistros("");
+		
 		
 	} /*Fim método atualizarRegistro*/
 	

@@ -7,7 +7,7 @@ Aplicação Desktop desenvolvida em Java utilizando a biblioteca gráfica Swing 
 ## 🎥 Demonstração do Funcionamento
 
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/SEU_VIDEO_AQUI.mp4" width="100%" controls>
+  <video src="https://drive.google.com/file/d/1Pup7cjcaizBBFlF1RE8937AMOAZDLfT1/view?usp=sharing" width="100%" controls>
     Seu navegador não suporta a exibição de vídeos.
   </video>
 </div>

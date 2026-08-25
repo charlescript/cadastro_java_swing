@@ -169,7 +169,7 @@ public class CadastroMongoApp extends JFrame {
 		/* Chamada do método carregarRegistros("") para exibir os dados da coleção na tabela.
 		 * O argumento passado é uma string vazia, indicando que deve trazer todos os registros sem filtro.
 		 * Isso garante que, ao abrir a aplicação, o usuário veja todos os cadastros já existentes */
-		//carregarRegistros("");
+		carregarRegistros("");
 		
 		
 		/* Torna a janela visível ao usuário.
@@ -554,6 +554,8 @@ public class CadastroMongoApp extends JFrame {
 	
 	private void carregarRegistros(String filtro) {
 		
+		modeloTabela.setRowCount(0);
+		
 	}
 	
 	
@@ -601,7 +603,7 @@ public class CadastroMongoApp extends JFrame {
 		/* Cria um novo objeto do tipo Document, que representa um documento no formato BSON (estrutura interna do MongoDB).
 		 * Esse objeto será inserido diretamente na coleção do MongoDB com um novo registro.
 		 * O primerio par chave-valor inserido é: "nome" -> nome (conteúdo digitado no campo txtNome).*/
-		Document doc = new Document("nome", nome )
+		Document doc = new Document("nome", nome)
 												.append("email", email)  /* Adiciona ao documento o par "email" -> email. O método append adiciona uma nova chave e seu valor ao Document de forma encadeada.*/
 												.append("telefone", tel) /* Adiciona ao documento o par "telefone" -> tel*/
 												.append("dataNascimento", data); /* Adiciona ao documento o par "DataNascimento" -> data*/
